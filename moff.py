@@ -45,9 +45,9 @@ def run_apex( file_name, tol, h_rt_w , s_w, s_w_match, loc_raw,loc_output  ):
 	# flag_for matching
    	mbr_flag=0
 	config = ConfigParser.RawConfigParser()
-       
+	moff_path= os.path.dirname( sys.argv[0])+ '/' 
 	# it s always placed in same folder of moff.py
-        config.read(  os.getcwd()+'/moff_setting.properties')
+        config.read( moff_path + 'moff_setting.properties')
 	#print os.getcwd()
 	# case of moff_all more than one subfolderi
 	name =  os.path.basename(file_name).split('.')[0]
@@ -102,7 +102,6 @@ def run_apex( file_name, tol, h_rt_w , s_w, s_w_match, loc_raw,loc_output  ):
                         exit ('ERROR minimal field requested are missing or wrong')
 	
 	### fast debug
-	data_ms2= data_ms2.head(20)
 
 	index_offset = data_ms2.columns.shape[0]   -1
 
@@ -153,7 +152,7 @@ def run_apex( file_name, tol, h_rt_w , s_w, s_w_match, loc_raw,loc_output  ):
 		##convert rt to sec to min
 		time_w= row['rt']/60
 		log.info( 'peptide at line %i -->  MZ: %4.4f RT: %4.4f ' ,c ,row['mz'] ,time_w )
-		args = shlex.split("./txic " + mz_opt + " -tol="+ str(tol) + " -t " + str(time_w - h_rt_w) + " -t "+ str(time_w +h_rt_w) +" " + loc   )
+		args = shlex.split(moff_path + "txic " + mz_opt + " -tol="+ str(tol) + " -t " + str(time_w - h_rt_w) + " -t "+ str(time_w +h_rt_w) +" " + loc   )
 		p= subprocess.Popen(args,stdout=subprocess.PIPE)
 		output, err = p.communicate()
 		
