@@ -14,14 +14,8 @@ import moff
 
 parser = argparse.ArgumentParser(description='moFF match between run and apex module input parameter')
 
-parser.add_argument('--inputF', dest='loc_in', action='store',
-                    help='specify the folder of the input MS2 peptide list files ', required=False)
-
-parser.add_argument('--sample', dest='sample', action='store',
-                    help='specify witch replicated to use for mbr reg_exp are valid ', required=False)
-
-parser.add_argument('--ext', dest='ext', action='store', default='txt',
-                    help='specify the file extentention of the input like ', required=False)
+parser.add_argument('--map_file', dest='map_file', action='store',
+                    help='specify map file of the file name and raw file ', required=True)
 
 parser.add_argument('--log_file_name', dest='log_label', action='store', default='moFF',
                     help='a label name to use for the log file', required=False)
@@ -51,19 +45,22 @@ parser.add_argument('--rt_p_match', dest='rt_p_window_match', action='store', ty
                     help='specify the time windows for the matched peptide peak ( minute). Default value is 0.4 ',
                     required=False)
 
-parser.add_argument('--raw_repo', dest='raw', action='store', help='specify the raw file repository ', required=True)
+#parser.add_argument('--raw_repo', dest='raw', action='store', help='specify the raw file repository ', required=True)
 
 parser.add_argument('--output_folder', dest='loc_out', action='store', default='', help='specify the folder output',
-                    required=False)
+                    required=True)
 
 args = parser.parse_args()
 
 print 'Matching between run module (mbr)'
 
-res_state = moff_mbr.run_mbr(args)
+map_name =   pd.read_csv(args.map_file,sep="\t", header=None )
+
+res_state = moff_mbr.run_mbr(args,map_name)
 if res_state == -1:
     exit('An error is occurred during the writing of the mbr file')
-folder = os.path.join(  args.loc_in ,'mbr_output')
+folder = os.path.join( args.loc_out ,'mbr_output')
+
 # os.chdir(folder)
 print 'Apex module '
 for file in glob.glob(folder + os.sep + "*.txt"):
@@ -72,7 +69,7 @@ for file in glob.glob(folder + os.sep + "*.txt"):
     h_rt_w = args.rt_window
     s_w = args.rt_p_window
     s_w_match = args.rt_p_window_match
-    loc_raw = args.raw
+    #loc_raw = args.raw
     loc_output = args.loc_out
-    moff.run_apex(file_name, tol, h_rt_w, s_w, s_w_match, loc_raw, loc_output)
+    moff.run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output)
 print '-------------     -------------'  # moff.run_apex(args)
