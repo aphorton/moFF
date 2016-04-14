@@ -31,7 +31,7 @@ def check_columns_name(col_list, col_must_have):
     return 0
 
 
-def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, loc_raw, loc_output):
+def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
     # file_name=  args.name
     # tol= args.toll
     # h_rt_w = args.rt_window
@@ -76,31 +76,21 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, loc_raw, loc_output):
         ## outputname : name of the output
         ## it should be ok also in linux
         outputname = os.path.join(loc_output, name + "_moff_result.txt")
-        fh = logging.FileHandler( os.path.join(loc_output,name + '__moff.log' ), mode='w')
+        fh = logging.FileHandler( os.path.join(loc_output,name + '__apex.log' ), mode='w')
     else:
         outputname = name + "_moff_result.txt"
-        fh = logging.FileHandler( os.path.join(name + '__moff.log' ), mode='w')
+        fh = logging.FileHandler( os.path.join(name + '__apex.log' ), mode='w')
 
     fh.setLevel(logging.INFO)
     log.addHandler(fh)
-
-
-
-    if loc_raw != None:
-            print loc_raw
-            if flag_windows:
-                loc= os.path.join( loc_raw,name + '.RAW')
-            else:
-                ## raw file name must have capitals letters :) this shloud be checked
-                loc = loc_raw + name.upper() + '.RAW'
-    else:
-            # that must be tested for the windows vers.
-            loc = os.path.join( loc_raw,name + '.RAW')
-        ##
+    
+    print name
+    loc =  str(map_name[map_name[1].str.contains(str(name))][0].values[0])
+    
     if os.path.isfile(loc):
         print 'raw file exist'
     else:
-        exit('ERROR:' + loc_raw + ' wrong path  or  wrong file name  must be included')
+        exit('ERROR:' + loc + ' wrong path or wrong file name  for the raw data')
     ## detect OS
 
     print 'moff Input file: %s  XIC_tol %s XIC_win %4.4f moff_rtWin_peak %4.4f ' % (file_name, tol, h_rt_w, s_w)
