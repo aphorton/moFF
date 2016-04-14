@@ -75,20 +75,17 @@ def check_columns_name(col_list, col_must_have):
 
 
 ## run the mbr in moFF : input  ms2 identified peptide   output csv file with the matched peptides added
-def run_mbr(args):
-    if not (os.path.isdir(args.loc_in)):
-        exit(str(args.loc_in) + '-->  input folder does not exist ! ')
-
+def run_mbr(args,map_name):
+    
+    #read the map file
+    #map_name =   pd.read_csv(args.map_file,sep="\t", header=None )
     filt_outlier = args.out_flag
-
-    if str(args.loc_in) == '':
-        output_dir = 'mbr_output'
+    
+    # write the mbr_folde on the output folder
+    if os.path.exists(os.path.join(args.loc_out)):
+        output_dir = os.path.join(args.loc_out, 'mbr_output')
     else:
-        if os.path.exists(os.path.join(args.loc_in)):
-            # if '/' in  str(args.loc_in):
-            output_dir = os.path.join(args.loc_in, 'mbr_output')
-        else:
-            exit(os.path.join(args.loc_in) + ' EXIT input folder path not well specified --> / missing ')
+        exit(os.path.join(args.loc_out) + ' EXIT output folder path not well specified --> / missing ')
 
     if not (os.path.isdir(output_dir)):
         print "Created MBR output folder in :", output_dir
@@ -113,16 +110,11 @@ def run_mbr(args):
     exp_out = []
     # lsit of input datafra used as help
     exp_subset = []
-    for root, dirs, files in os.walk(args.loc_in):
-        for f in files:
-            if f.endswith('.' + args.ext):
-                exp_set.append(os.path.join(root, f))
-    if not ((args.sample) == None):
-        exp_set_app = copy.deepcopy(exp_set)
-        for a in exp_set:
-            if (re.search(args.sample, a) == None):
-                exp_set_app.remove(a)
-        exp_set = exp_set_app
+    
+    #DEBUG
+    #print map_name
+    exp_set.extend( map_name.ix[:,1] )
+    
     if (exp_set == []) or (len(exp_set) == 1):
         print exp_set
         exit(
@@ -167,7 +159,7 @@ def run_mbr(args):
 
     log_mbr = logging.getLogger('MBR module')
     log_mbr.setLevel(logging.INFO)
-    w_mbr = logging.FileHandler(args.loc_in + '/' + args.log_label + '_' + 'mbr_.log', mode='w')
+    w_mbr = logging.FileHandler(args.loc_out + '/' + args.log_label + '_' + 'mbr_.log', mode='w')
     w_mbr.setLevel(logging.INFO)
     log_mbr.addHandler(w_mbr)
 
@@ -325,15 +317,15 @@ def run_mbr(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='moFF match between run input parameter')
 
-    parser.add_argument('--inputF', dest='loc_in', action='store',
-                        help='specify the folder of the input MS2 peptide files  REQUIRED]', required=True)
+    #parser.add_argument('--inputF', dest='loc_in', action='store',
+     #                   help='specify the folder of the input MS2 peptide files  REQUIRED]', required=True)
 
-    parser.add_argument('--sample', dest='sample', action='store',
-                        help='specify which replicate files are used fot mbr [regular expr. are valid] ',
-                        required=False)
+    #parser.add_argument('--sample', dest='sample', action='store',
+    #                    help='specify which replicate files are used fot mbr [regular expr. are valid] ',
+    #                    required=False)
 
-    parser.add_argument('--ext', dest='ext', action='store', default='txt',
-                        help='specify the exstension of the input file (txt as default value) ', required=False)
+    #parser.add_argument('--ext', dest='ext', action='store', default='txt',
+    #                    help='specify the exstension of the input file (txt as default value) ', required=False)
 
     parser.add_argument('--log_file_name', dest='log_label', default='moFF', action='store',
                         help='a label name for the log file (moFF_mbr.log as default log file name) ', required=False)
