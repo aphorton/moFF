@@ -116,9 +116,7 @@ def run_mbr(args,map_name):
     exp_set.extend( map_name.ix[:,1] )
     
     if (exp_set == []) or (len(exp_set) == 1):
-        print exp_set
-        exit(
-            'ERROR input files not found or just one input file selected . check the folder or the extension given in input')
+        exit(     'ERROR input files not found or just one input file selected . check the folder or the extension given in input')
 
     for a in exp_set:
         print 'Reading file.... ', a
@@ -317,15 +315,8 @@ def run_mbr(args,map_name):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='moFF match between run input parameter')
 
-    #parser.add_argument('--inputF', dest='loc_in', action='store',
-     #                   help='specify the folder of the input MS2 peptide files  REQUIRED]', required=True)
 
-    #parser.add_argument('--sample', dest='sample', action='store',
-    #                    help='specify which replicate files are used fot mbr [regular expr. are valid] ',
-    #                    required=False)
 
-    #parser.add_argument('--ext', dest='ext', action='store', default='txt',
-    #                    help='specify the exstension of the input file (txt as default value) ', required=False)
 
     parser.add_argument('--log_file_name', dest='log_label', default='moFF', action='store',
                         help='a label name for the log file (moFF_mbr.log as default log file name) ', required=False)
