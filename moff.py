@@ -98,6 +98,7 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
     log.info('moff Input file: %s  XIC_tol %s XIC_win %4.4f moff_rtWin_peak %4.4f ', file_name, tol, h_rt_w, s_w)
     log.info('Output_file in :  %s', outputname)
     log.info('RAW file and its location :  %s', loc)
+    #print file_name
     ##read data from file
     data_ms2 = pd.read_csv(file_name, sep="\t", header=0)
     if check_columns_name(data_ms2.columns.tolist(), ast.literal_eval(config.get('moFF', 'col_must_have_x'))) == 1:
@@ -265,9 +266,9 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='moFF input parameter')
 
-    parser.add_argument('--input', dest='name', action='store', help='specify the input file with the  of MS2 peptides',
-                        required=True)
-
+    parser.add_argument('--map_file', dest='map_file', action='store',
+                    help='specify a map file that contains input files   and raw file ', required=True) 
+   
     parser.add_argument('--tol', dest='toll', action='store', type=float,
                         help='specify the tollerance parameter in ppm', required=True)
 
@@ -281,21 +282,20 @@ if __name__ == '__main__':
                         help='specify the time windows for the matched peptide peak ( minute). Default value is 0.4 ',
                         required=False)
 
-    parser.add_argument('--raw_repo', dest='raw', action='store', help='specify the raw file repository ',
-                        required=True)
 
     parser.add_argument('--output_folder', dest='loc_out', action='store', default='', help='specify the folder output',
                         required=False)
 
     args = parser.parse_args()
-    file_name = args.name
-    tol = args.toll
-    h_rt_w = args.rt_window
-    s_w = args.rt_p_window
-    s_w_match = args.rt_p_window_match
-    loc_raw = args.raw
-    loc_output = args.loc_out
+    map_name =  pd.read_csv(args.map_file,sep="\t", header=None )
+    print 'Apex module '
+    
+    for file_name  in  map_name.ix[:,1].tolist():
+    	
+    	tol = args.toll
+    	h_rt_w = args.rt_window
+    	s_w = args.rt_p_window
+    	s_w_match = args.rt_p_window_match
+    	loc_output = args.loc_out
+    	run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output)
 
-
-    # " init here the logger
-    run_apex(file_name, tol, h_rt_w, s_w, s_w_match, loc_raw, loc_output)
