@@ -118,28 +118,4 @@ WARNING : the raw file names  MUST be the same of the input file otherwise the s
 
 ---
 
-## Entire workflow ##
 
-use `python moff_all.py -h`
-```
-	--inputF LOC_IN       specify the folder of the input MS2 peptide list files
-  	--sample SAMPLE       specify witch replicated use for mbr reg_exp are valid
-  	--ext EXT             specify the file extentention of the input like
-  	--log_file_name LOG_LABEL a label name to use for the log file
-  	--filt_width W_FILT   width value of the filter k * mean(Dist_Malahobis)
-  	--out_filt OUT_FLAG   filter outlier in each rt time allignment
-  	--weight_comb W_COMB  weights for model combination combination : 0 for no weight 1 weighted devised by trein err of the model.
-  	--tol TOLL            specify the tollerance parameter in ppm
-  	--rt_w RT_WINDOW      specify rt window for xic (minute). Default value is  3  min
-  	--rt_p RT_P_WINDOW    specify the time windows for the peak ( minute). Default value is 0.1
-  	--rt_p_match RT_P_WINDOW_MATCH	specify the time windows for the matched peptide peak ( minute). Default value is 0.4
-  	--raw_repo RAW        	specify the raw file repository
-  	--output_folder LOC_OUT		specify the folder output
-```
-`python moff_all.py --inputF  f1_folder/   --raw_repo f1_folder/ --output_folder output_moff`
-
-The options are the same of the two modules, the the output mbr files are stores in the folder f1_folder/mbr_output  and the result of the apex module are stored in output_moff. Also the log files are stored in the respective folders
-
-[Top of page](#moff)
-
----
