@@ -84,11 +84,12 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
     fh.setLevel(logging.INFO)
     log.addHandler(fh)
     
-    print name
     loc =  str(map_name[map_name[1].str.contains(str(name))][0].values[0])
     
     if os.path.isfile(loc):
-        print 'raw file exist'
+        #print 'raw file exist'
+	log.info('-- raw file detected --')
+
     else:
         exit('ERROR:' + loc + ' wrong path or wrong file name  for the raw data')
     ## detect OS
@@ -133,8 +134,11 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
         log.info('Apex module has detected mbr peptides')
         log.info('moff_rtWin_peak for matched peptide:   %4.4f ', s_w_match)
     c = 0
-    print 'Starting apex .........',
-
+    steps = data_ms2.shape[0] / 10
+    #print 'Starting apex .........',
+    print 'Starting  Apex [          ]',
+    print '\b'*12,
+    sys.stdout.flush()
     for index_ms2, row in data_ms2.iterrows():
         # log.info('peptide at line: %i',c)
         mz_opt = "-mz=" + str(row['mz'])
@@ -252,10 +256,13 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
                 abs(data_ms2.ix[index_ms2, index_offset + 2] - log_time[0]) / abs(
                     data_ms2.ix[index_ms2, index_offset + 2] - log_time[1]))
             data_ms2.ix[index_ms2, (index_offset + 9)] = np.log2(val_max)
-
+	    ## bar update
+	    if c % steps == 0 :
+		print '\b.',
+        	sys.stdout.flush()  
             c += 1
     ## save  result i
-    print '..............apex terminated'
+    print '\b] Apex end'
     print 'Writing result in %s' % (outputname)
     data_ms2.to_csv(path_or_buf=outputname, sep="\t", header=True, index=False)
     fh.close()
