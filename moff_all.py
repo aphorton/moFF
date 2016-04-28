@@ -30,7 +30,6 @@ parser.add_argument('--weight_comb', dest='w_comb', action='store', default=0,
                     help='weights for model combination combination : 0 for no weight  1 weighted devised by trein err of the model.',
                     required=False)
 
-# parser.add_argument('--input', dest='name', action='store',help='specify input list of MS2 peptides ', required=True)
 
 parser.add_argument('--tol', dest='toll', action='store', type=float, help='specify the tollerance  parameter in ppm',
                     required=True)
@@ -45,7 +44,6 @@ parser.add_argument('--rt_p_match', dest='rt_p_window_match', action='store', ty
                     help='specify the time windows for the matched peptide peak ( minute). Default value is 0.4 ',
                     required=False)
 
-#parser.add_argument('--raw_repo', dest='raw', action='store', help='specify the raw file repository ', required=True)
 
 parser.add_argument('--output_folder', dest='loc_out', action='store', default='', help='specify the folder output',
                     required=True)
@@ -61,7 +59,6 @@ if res_state == -1:
     exit('An error is occurred during the writing of the mbr file')
 folder = os.path.join( args.loc_out ,'mbr_output')
 
-# os.chdir(folder)
 print 'Apex module '
 for file in glob.glob(folder + os.sep + "*.txt"):
     file_name = file
@@ -69,7 +66,6 @@ for file in glob.glob(folder + os.sep + "*.txt"):
     h_rt_w = args.rt_window
     s_w = args.rt_p_window
     s_w_match = args.rt_p_window_match
-    #loc_raw = args.raw
     loc_output = args.loc_out
     moff.run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output)
 print '-------------     -------------'  # moff.run_apex(args)
