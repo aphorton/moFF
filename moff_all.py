@@ -15,7 +15,7 @@ import moff
 parser = argparse.ArgumentParser(description='moFF match between run and apex module input parameter')
 
 parser.add_argument('--map_file', dest='map_file', action='store',
-                    help='specify map file of the file name and raw file ', required=True)
+                    help='specify a map file that contains input files   and raw file ', required=True)
 
 parser.add_argument('--log_file_name', dest='log_label', action='store', default='moFF',
                     help='a label name to use for the log file', required=False)
@@ -54,7 +54,7 @@ args = parser.parse_args()
 
 print 'Matching between run module (mbr)'
 
-map_name =   pd.read_csv(args.map_file,sep="\t", header=None )
+map_name =  pd.read_csv(args.map_file,sep="\t", header=None )
 
 res_state = moff_mbr.run_mbr(args,map_name)
 if res_state == -1:
