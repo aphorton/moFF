@@ -93,7 +93,6 @@ use  `python moff.py -h`
   --tol TOLL                          specify the tollerance parameter in ppm
   --rt_w RT_WINDOW                    specify rt window for xic (minute). Default value is 3 min
   --rt_p RT_P_WINDOW                  specify the time windows for the peak ( minute). Default value is 0.1
-  --rt_p_match RT_P_WINDOW_MATCH      specify the time windows for the matched peptide peak ( minute). Default value is 0.4
   --output_folder LOC_OUT             specifyO the folder output
 ```
 `python moff.mbr  --map_file moff_map_file.txt  --output_folder test_moffgui/     --tol 10  --rt_w 5 --rt_p 0.1 --rt_p_match 0.4 ` 
