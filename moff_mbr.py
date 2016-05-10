@@ -31,7 +31,7 @@ def MahalanobisDist(x, y):
 ## remove outlier
 def MD_removeOutliers(x, y, width):
     MD = MahalanobisDist(x, y)
-    threshold = np.mean(MD) * width  # adjust 1.5 accordingly
+    threshold = np.mean(MD) * float(width)  # adjust 1.5 accordingly
     nx, ny, outliers = [], [], []
     for i in range(len(MD)):
         if MD[i] <= threshold:
@@ -160,8 +160,9 @@ def run_mbr(args,map_name):
     w_mbr = logging.FileHandler(args.loc_out + '/' + args.log_label + '_' + 'mbr_.log', mode='w')
     w_mbr.setLevel(logging.INFO)
     log_mbr.addHandler(w_mbr)
-
-    log_mbr.info('Filtering is %s : ', 'active' if args.out_flag == 1 else 'not active')
+    log_mbr.info('Filtering is :  %s  ', 'active' if int(args.out_flag) == 1 else 'not active')
+    if int(args.out_flag) == 1 :
+    	log_mbr.info('Width of filter :  %f  ',  float(args.w_filt))  
     log_mbr.info('Number of replicates %i,', n_replicates)
     log_mbr.info('Pairwise model computation ----')
 
@@ -201,6 +202,7 @@ def run_mbr(args,map_name):
                         data_A = filt_y
                         data_B = np.reshape(data_B, [filt_x.shape[0], 1])
                         data_A = np.reshape(data_A, [filt_y.shape[0], 1])
+	                #print  args.w_filt,args.out_flag
                         log_mbr.info('Outlier founded %i  w.r.t %i', pos_out.shape[0], common['rt_y'].shape[0])
                     else:
                         data_B = common['rt_y'].values
