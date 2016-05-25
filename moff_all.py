@@ -44,6 +44,9 @@ parser.add_argument('--rt_p_match', dest='rt_p_window_match', action='store', ty
                     help='specify the time windows for the matched peptide peak ( minute). Default value is 0.4 ',
                     required=False)
 
+parser.add_argument('--rt_feat_file', dest='rt_feat_file', action='store', 
+                    help='specify the file that contains the features to use in the match-between-run RT prediction ',
+                    required=False)
 
 parser.add_argument('--output_folder', dest='loc_out', action='store', default='', help='specify the folder output',
                     required=True)
