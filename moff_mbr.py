@@ -127,9 +127,9 @@ def run_mbr(args,map_name):
             exit('ERROR minimal field requested are missing or wrong')
         data_moff['matched'] = 0
         data_moff['mass'] = data_moff['mass'].map('{:.4f}'.format)
-
+	data_moff['mz'] = data_moff['mz'].map('{:.4f}'.format)
         data_moff['code_unique'] = data_moff['peptide'].astype(str) + '_' + data_moff['mass'].astype(str)
-        data_moff = data_moff.sort(columns='rt')
+	data_moff = data_moff.sort(columns='rt')
         exp_t.append(data_moff)
         exp_out.append(data_moff)
 
@@ -165,31 +165,50 @@ def run_mbr(args,map_name):
     	log_mbr.info('Width of filter :  %f  ',  float(args.w_filt))  
     log_mbr.info('Number of replicates %i,', n_replicates)
     log_mbr.info('Pairwise model computation ----')
-
+  
+    if args.rt_feat_file !=  None :
+	log_mbr.info('Custom list of peptide used  provided by the user  in  %s ', args.rt_feat_file)
+	#print args.rt_feat_file, 'custom list of peptides'
+	shared_pep_list =  pd.read_csv(args.rt_feat_file, sep='\t')
+	shared_pep_list['mass'] =  shared_pep_list['mass'].map('{:.4f}'.format)
+	shared_pep_list['code'] = shared_pep_list['peptide'].astype(str) + '_' +  shared_pep_list['mass'].astype(str) 
+	list_shared_pep= shared_pep_list['code'] 
+ 	log_mbr.info('Custom list of peptide contains  %i ', list_shared_pep.shape[0])
+    
     for jj in aa:
         sum_values = np.array([0, 0, 0])
         print 'matching  in ', exp_set[jj]
 
         for i in out:
-            if i[0] == jj and i[1] != jj:
-                log_mbr.info('  Matching  %s peptide in   searching in %s ', exp_set[i[0]], exp_set[i[1]])
-                list_pep_repA = exp_t[i[0]]['code_unique'].unique()
-                list_pep_repB = exp_t[i[1]]['code_unique'].unique()
-                log_mbr.info('  Peptide unique (mass + sequence) %i , %i ', list_pep_repA.shape[0],
+            if i[0] == jj and i[1] != jj: 
+
+		if args.rt_feat_file !=  None :
+			
+			#print list_shared_pep
+			comA = exp_t[i[0]][exp_t[i[0]]['code_unique'].isin(list_shared_pep)][['code_unique', 'peptide', 'prot', 'rt']]
+                        comB = exp_t[i[1]][exp_t[i[1]]['code_unique'].isin(list_shared_pep)][['code_unique', 'peptide', 'prot', 'rt']]	
+			comA = comA.groupby('code_unique', as_index=False).mean()
+                        comB = comB.groupby('code_unique', as_index=False).mean()
+			#print comA.shape, comB.shape
+			common = pd.merge(comA, comB, on=['code_unique'], how='inner')		
+
+		else:
+                	log_mbr.info('  Matching  %s peptide in   searching in %s ', exp_set[i[0]], exp_set[i[1]])
+                	list_pep_repA = exp_t[i[0]]['code_unique'].unique()
+                	list_pep_repB = exp_t[i[1]]['code_unique'].unique()
+                	log_mbr.info('  Peptide unique (mass + sequence) %i , %i ', list_pep_repA.shape[0],
                              list_pep_repB.shape[0])
-                set_dif_s_in_1 = np.setdiff1d(list_pep_repB, list_pep_repA)
-                add_pep_frame = exp_t[i[1]][exp_t[i[1]]['code_unique'].isin(set_dif_s_in_1)].copy()
-                pep_shared = np.intersect1d(list_pep_repA, list_pep_repB)
-                log_mbr.info('  Peptide (mass + sequence)  added size  %i ', add_pep_frame.shape[0])
-                log_mbr.info('  Peptide (mass + sequence) )shared  %i ', pep_shared.shape[0])
-                comA = exp_t[i[0]][exp_t[i[0]]['code_unique'].isin(pep_shared)][
-                    ['code_unique', 'peptide', 'prot', 'rt']]
-                comB = exp_t[i[1]][exp_t[i[1]]['code_unique'].isin(pep_shared)][
-                    ['code_unique', 'peptide', 'prot', 'rt']]
-                comA = comA.groupby('code_unique', as_index=False).mean()
-                comB = comB.groupby('code_unique', as_index=False).mean()
-                common = pd.merge(comA, comB, on=['code_unique'], how='inner')
-                if common.shape[0] <= 50:
+                	set_dif_s_in_1 = np.setdiff1d(list_pep_repB, list_pep_repA)
+                	add_pep_frame = exp_t[i[1]][exp_t[i[1]]['code_unique'].isin(set_dif_s_in_1)].copy()
+                	pep_shared = np.intersect1d(list_pep_repA, list_pep_repB)
+                	log_mbr.info('  Peptide (mass + sequence)  added size  %i ', add_pep_frame.shape[0])
+                	log_mbr.info('  Peptide (mass + sequence) )shared  %i ', pep_shared.shape[0])
+                	comA = exp_t[i[0]][exp_t[i[0]]['code_unique'].isin(pep_shared)][['code_unique', 'peptide', 'prot', 'rt']]
+                	comB = exp_t[i[1]][exp_t[i[1]]['code_unique'].isin(pep_shared)][['code_unique', 'peptide', 'prot', 'rt']]
+                	comA = comA.groupby('code_unique', as_index=False).mean()
+                	comB = comB.groupby('code_unique', as_index=False).mean()
+                	common = pd.merge(comA, comB, on=['code_unique'], how='inner')
+                if common.shape[0] <= 10:
                     # print common.shape
                     model_status.append(-1)
                     continue
