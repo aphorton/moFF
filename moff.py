@@ -21,6 +21,27 @@ from sys import platform as _platform
 ##  list of intensities..+
 
 
+def pyMZML_xic_out(  name, ppmPrecision, minRT, maxRT ,MZValue ):
+	#print access
+	run = pymzml.run.Reader(name, MS1_Precision= ppmPrecision , MSn_Precision = ppmPrecision)
+	timeDependentIntensities = []
+	for spectrum in run:
+		if  spectrum['ms level'] == 1 and spectrum['scan start time'] > minRT and spectrum['scan start time'] < maxRT:
+                        lower_index = bisect.bisect( spectrum.peaks, (float(MZValue  - ppmPrecision*MZValue  ),None  ))
+                        upper_index = bisect.bisect( spectrum.peaks, (float(MZValue + ppmPrecision*MZValue )  ,None) )
+                #       print lower_index, upper_index, float(MZValue  - 10)
+                        maxI= 0.0
+                        for sp  in spectrum.peaks[ lower_index : upper_index ] :
+                            if sp[1] > maxI:
+                             maxI= sp[1]
+                        if maxI > 0:
+                                timeDependentIntensities.append( [ spectrum['scan start time'], maxI ])	
+	
+	if len(timeDependentIntensities) > 5 :
+		return (pd.DataFrame( timeDependentIntensities,  columns=['rt', 'intensity']) ,1  )
+        else :
+return (pd.DataFrame( timeDependentIntensities, columns=['rt', 'intensity']) ,-1 )
+
 
 def check_columns_name(col_list, col_must_have):
     for c_name in col_must_have:
@@ -86,10 +107,12 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
     
     loc =  str(map_name[map_name[1].str.contains(str(name))][0].values[0])
     
+    flag_mzml= False
+    if ('MZML' in loc.upper()):
+	flag_mzml=True 
     if os.path.isfile(loc):
         #print 'raw file exist'
 	log.info('-- raw file detected --')
-
     else:
         exit('ERROR:' + loc + ' wrong path or wrong file name  for the raw data')
     ## detect OS
@@ -158,15 +181,24 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
             log.warning('rt not found. Wrong matched peptide in the mbr step line: %i', c)
             c += 1
             continue
-
-        if flag_windows :
-            os.path.join('folder_name', 'file_name')
-            args_txic = shlex.split( os.path.join(moff_path ,"txic.exe") +" "+  mz_opt + " -tol=" + str(tol) + " -t " + str(time_w - h_rt_w) + " -t " + str(time_w + h_rt_w) + " " + loc, posix=False)
-        else:
-            args_txic = shlex.split("./txic " + mz_opt + " -tol=" + str(tol) + " -t " + str(time_w - h_rt_w) + " -t " + str(
-            time_w + h_rt_w) + " " + loc)
-        p = subprocess.Popen(args_txic, stdout=subprocess.PIPE)
-        output, err = p.communicate()
+	if flag_mzml:
+		# mzml raw file
+		 
+		data_xic ,status = pyMZML_xic_out(  loc, tol,   time_w - h_rt_w , time_w + h_rt_w , row['mz']  )
+					
+		if status==-1:
+			log.warning("WARNINGS: XIC not retrived line: %i", c)
+            		log.warning('MZ: %4.4f RT: %4.4f Mass: %i', row['mz'], row['rt'], index_ms2)
+            		c += 1
+			continue		
+	else:
+        	if flag_windows :
+            		os.path.join('folder_name', 'file_name')
+            		args_txic = shlex.split( os.path.join(moff_path ,"txic.exe") +" "+  mz_opt + " -tol=" + str(tol) + " -t " + str(time_w - h_rt_w) + " -t " + str(time_w + h_rt_w) + " " + loc, posix=False)
+        	else:
+            		args_txic = shlex.split("./txic " + mz_opt + " -tol=" + str(tol) + " -t " + str(time_w - h_rt_w) + " -t " + str(time_w + h_rt_w) + " " + loc)
+        	p = subprocess.Popen(args_txic, stdout=subprocess.PIPE)
+        	output, err = p.communicate()
         try:
             data_xic = pd.read_csv(StringIO(output.strip()), sep=' ', names=['rt', 'intensity'], header=0)
             ind_v = data_xic.index
