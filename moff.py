@@ -179,7 +179,7 @@ def run_apex(file_name, tol, h_rt_w, s_w, s_w_match, map_name, loc_output):
         try:
             if flag_mzml:
                 # mzml raw file
-                data_xic ,status = pyMZML_xic_out(  loc, tol,   time_w - h_rt_w , time_w + h_rt_w , row['mz']  )
+                data_xic ,status = pyMZML_xic_out(  loc, float(tol / (10 ** 6)) ,   time_w - h_rt_w , time_w + h_rt_w , row['mz']  )
                 if status==-1:
                     log.warning("WARNINGS: XIC not retrived line: %i", c)
                     log.warning('MZ: %4.4f RT: %4.4f Mass: %i', row['mz'], row['rt'], index_ms2)
